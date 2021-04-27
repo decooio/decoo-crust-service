@@ -33,6 +33,6 @@
   "scripts": {
     "dev": "nodemon ./src/app.ts",
     "build": "tsc",
-    "test": "jest"
+    "test": "mocha"
   }
 }

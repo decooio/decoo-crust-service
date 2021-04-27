@@ -1,7 +1,7 @@
 // Seeds of account
 import { Keyring } from '@polkadot/keyring'
 
-const seeds = 'length youth fame learn repeat entire dirt undo wheel keep radar matrix'
+const seeds = process.env.SEEDS
 
 const kr = new Keyring({
   type: 'sr25519'
