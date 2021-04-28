@@ -1,11 +1,11 @@
 import * as Router from 'koa-router'
 
 const router = new Router()
-router.get('/order:cid', (ctx, next) => {
+router.get('/hello', (ctx, next) => {
   // ctx.body = 'hello world'
-  ctx.body = ''
+  ctx.body = 'sdsdsds'
 })
-router.put('/order:cid&', (ctx, next) => {
+router.post('/order', (ctx, next) => {
   ctx.body = ''
 })
 
