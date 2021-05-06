@@ -1,12 +1,19 @@
 import * as Router from 'koa-router'
 import createKeyring from '../services/crust/krp'
-import { placeOrder } from '../services/crust/order'
+import { getOrderState, placeOrder } from '../services/crust/order'
 import { api } from '../services/crust/api'
 const router = new Router()
-router.get('/order/:cid', (ctx, next) => {
-  const cid = ctx.params.cid
-  ctx.body = {
-    cid
+router.get('/order/:cid', async (ctx, next) => {
+  try {
+    const cid = ctx.params.cid
+    const res = await getOrderState(api, cid)
+    ctx.body = {
+      code: 1,
+      data: res,
+      error_msg: null
+    }
+  } catch (e) {
+    throw new Error(e)
   }
 })
 interface OrderInfo {
@@ -16,22 +23,19 @@ interface OrderInfo {
 }
 router.post('/order', async (ctx, next) => {
   try {
-    console.log(ctx.request.body)
     const { fileCid, fileSize, seeds } = ctx.request.body as OrderInfo
-    console.log({ fileCid, fileSize, seeds })
     const krp = createKeyring(seeds)
     const res = await placeOrder(api, krp, fileCid, fileSize, 0)
-    console.log(res)
-    ctx.body = {
-      code: 0,
-      error_msg: null
+    if (!res) {
+      throw new Error('Order Failed')
     }
-  } catch (e) {
-    console.log(e)
     ctx.body = {
       code: 1,
-      error_msg: 'error while'
+      error_msg: null,
+      data: res
     }
+  } catch (e) {
+    throw new Error(e)
   }
 })
 
