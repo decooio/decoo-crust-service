@@ -1,0 +1,12 @@
+version: "3.8"
+services:
+  order-service:
+     build: .
+     ports:
+       - 5000:3000
+     working_dir: /app
+     environment:
+        WS_ENDPOINT: "wss://rocky-api.crust.network/"
+
+
+
