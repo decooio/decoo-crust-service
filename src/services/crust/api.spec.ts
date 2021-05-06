@@ -1,8 +1,4 @@
-import * as dotenv from 'dotenv'
 import { api } from './api'
-
-dotenv.config()
-
 
 describe('Crust api ', () => {
   it('api status', async function (done) {
