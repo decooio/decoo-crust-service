@@ -51,3 +51,7 @@ export async function sendTx (krp: KeyringPair, tx: SubmittableExtrinsic) {
     })
   })
 }
+export async function getOrderState (api: ApiPromise, cid: string) {
+  await api.isReadyOrError
+  return await api.query.market.files(cid)
+}
