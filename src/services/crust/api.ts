@@ -1,7 +1,7 @@
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import { typesBundleForPolkadot } from '@crustio/type-definitions'
 
-const chainWsUrl = process.env.CHAIN_WS_URL
+const chainWsUrl = 'wss://rocky-api.crust.network/'
 
 export const api = new ApiPromise({
   provider: new WsProvider(chainWsUrl),
