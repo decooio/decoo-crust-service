@@ -34,6 +34,6 @@
     "dev": "nodemon ./src/app.ts",
     "build": "tsc",
     "test": "mocha",
-    "start": "node ./build/index.js"
+    "start": "node ./build/app.js"
   }
 }

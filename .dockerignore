@@ -1,0 +1,4 @@
+/node-modules
+*.log
+yarn-error.log
+/dist
