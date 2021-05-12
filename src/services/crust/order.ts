@@ -51,7 +51,27 @@ export async function sendTx (krp: KeyringPair, tx: SubmittableExtrinsic) {
     })
   })
 }
+
+interface IFileInfo {
+  'file_size': number,
+  'expired_on': number,
+  'calculated_at': number,
+  amount: number,
+  prepaid: number,
+  'reported_replica_count': number,
+  replicas: [any]
+}
+
 export async function getOrderState (api: ApiPromise, cid: string) {
   await api.isReadyOrError
-  return await api.query.market.files(cid)
+  const res = await api.query.market.files(cid)
+  const data = res ? JSON.parse(JSON.stringify(res)) : null
+  if (data && Array.isArray(data) && data.length > 0) {
+    const { replicas, ...meaningfulData } = (data as IFileInfo[])[0]
+    return {
+      meaningfulData,
+      replicas
+    }
+  }
+  return null
 }

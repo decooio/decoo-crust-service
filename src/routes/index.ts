@@ -6,10 +6,10 @@ const router = new Router()
 router.get('/order/:cid', async (ctx, next) => {
   try {
     const cid = ctx.params.cid
-    const res = await getOrderState(api, cid)
+    const { meaningfulData } = await getOrderState(api, cid)
     ctx.body = {
       code: 1,
-      data: res,
+      data: meaningfulData,
       error_msg: null
     }
   } catch (e) {
