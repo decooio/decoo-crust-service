@@ -2,6 +2,7 @@ import * as Router from 'koa-router'
 import createKeyring from '../services/crust/krp'
 import { getOrderState, placeOrder } from '../services/crust/order'
 import { api } from '../services/crust/api'
+import { getAccountBalance } from '../services/crust/info'
 const router = new Router()
 router.get('/order/:cid', async (ctx, next) => {
   try {
@@ -33,6 +34,23 @@ router.post('/order', async (ctx, next) => {
       code: 1,
       error_msg: null,
       data: res
+    }
+  } catch (e) {
+    throw new Error(e)
+  }
+})
+
+router.get('/balance/:id', async (ctx, next) => {
+  try {
+    const account = ctx.params.id
+    const free = await getAccountBalance(api, account)
+    ctx.body = {
+      code: 1,
+      error_msg: null,
+      data: {
+        free,
+        account
+      }
     }
   } catch (e) {
     throw new Error(e)
