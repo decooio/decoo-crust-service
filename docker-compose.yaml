@@ -1,13 +1,9 @@
 version: "3.8"
 services:
   order-service:
-     image: docker.io/library/decoo-node-service
+     image: ghcr.io/decooio/decoo-node-service
      container_name: decoo-node-service
      ports:
        - 23000:3000
      working_dir: /app
-     environment:
-        WS_ENDPOINT: "wss://rocky-api.crust.network/"
-
-
-
+     env_file: ./.env
