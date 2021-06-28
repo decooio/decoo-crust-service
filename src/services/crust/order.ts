@@ -75,3 +75,15 @@ export async function getOrderState (api: ApiPromise, cid: string) {
   }
   return null
 }
+
+export async function transfer (api: ApiPromise, krp: KeyringPair, amount:string, account:string) {
+  await api.isReadyOrError
+  // Generate transaction
+  const txPre = api.tx.balances.transfer(account, Number(amount) * 1_000_000_000_000)
+
+  const paymentStr = await txPre.paymentInfo(account)
+  const feeExpected = (paymentStr.toJSON()).partialFee
+  const tx = api.tx.balances.transfer(account, Number(amount) * 1_000_000_000_000 - Number(feeExpected))
+  const txRes = JSON.parse(JSON.stringify((await sendTx(krp, tx))))
+  return JSON.parse(JSON.stringify(txRes))
+}
