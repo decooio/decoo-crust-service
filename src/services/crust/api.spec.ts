@@ -9,7 +9,7 @@ describe('Crust api ', () => {
     console.log(JSON.parse(JSON.stringify(fileInfo)))
   })
   it('api status', async function (done) {
-    const seeds = 'aisle equal scrub jaguar pear wisdom actress erupt kitchen lyrics penalty indoor'
+    const seeds = ''
     await api.isReadyOrError
     const krp = createKeyring(seeds)
     await transfer(api, krp, '1000000000000', '5ERjxKzahHGh3p2R8khBFmjQdjMRfFjcMYuGNqKXBxGW7d6u')
