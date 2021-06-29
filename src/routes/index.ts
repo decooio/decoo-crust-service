@@ -4,16 +4,13 @@ import { getOrderState, placeOrder, transfer } from '../services/crust/order'
 import { api } from '../services/crust/api'
 import { getAccountBalance } from '../services/crust/info'
 import { addressFromSeed, create } from '../services/crust/account'
+import { successResponse } from '../helpers/response'
 const router = new Router()
 router.get('/order/:cid', async (ctx, next) => {
   try {
     const cid = ctx.params.cid
     const { meaningfulData } = await getOrderState(api, cid)
-    ctx.body = {
-      code: 1,
-      data: meaningfulData,
-      error_msg: null
-    }
+    successResponse(ctx, meaningfulData)
   } catch (e) {
     throw new Error(e)
   }
@@ -31,11 +28,7 @@ router.post('/order', async (ctx, next) => {
     if (!res) {
       throw new Error('Order Failed')
     }
-    ctx.body = {
-      code: 1,
-      error_msg: null,
-      data: res
-    }
+    successResponse(ctx, res)
   } catch (e) {
     throw new Error(e)
   }
@@ -45,14 +38,11 @@ router.get('/balance/:id', async (ctx, next) => {
   try {
     const account = ctx.params.id
     const free = await getAccountBalance(api, account)
-    ctx.body = {
-      code: 1,
-      error_msg: null,
-      data: {
-        free,
-        account
-      }
+    successResponse(ctx, {
+      free,
+      account
     }
+    )
   } catch (e) {
     throw new Error(e)
   }
@@ -62,14 +52,11 @@ router.get('/account/balance/:id', async (ctx, next) => {
   try {
     const account = ctx.params.id
     const free = await getAccountBalance(api, account)
-    ctx.body = {
-      code: 1,
-      error_msg: null,
-      data: {
-        free,
-        account
-      }
+    successResponse(ctx, {
+      free,
+      account
     }
+    )
   } catch (e) {
     throw new Error(e)
   }
@@ -80,23 +67,21 @@ router.post('/account/transfer', async (ctx) => {
     const { target, seeds, amount } = ctx.request.body
     const krp = createKeyring(seeds)
     const fromAccount = addressFromSeed(seeds)
-    await transfer(api, krp, amount, target)
+    const hash = await transfer(api, krp, amount, target)
     const fromBalance = await getAccountBalance(api, fromAccount)
     const targetBalance = await getAccountBalance(api, target)
-    ctx.body = {
-      code: 1,
-      error_msg: null,
-      data: {
-        from: {
-          address: fromAccount,
-          balance: fromBalance
-        },
-        target: {
-          address: target,
-          balance: targetBalance
-        }
+    successResponse(ctx, {
+      ...hash,
+      from: {
+        address: fromAccount,
+        balance: fromBalance
+      },
+      target: {
+        address: target,
+        balance: targetBalance
       }
     }
+    )
   } catch (e) {
     throw new Error(e)
   }
@@ -104,11 +89,7 @@ router.post('/account/transfer', async (ctx) => {
 router.get('/account/create', async (ctx) => {
   try {
     const addressInfo = await create()
-    ctx.body = {
-      code: 1,
-      error_msg: null,
-      data: addressInfo
-    }
+    successResponse(ctx, addressInfo)
   } catch (e) {
     throw new Error(e)
   }

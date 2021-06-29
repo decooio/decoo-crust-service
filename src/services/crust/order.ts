@@ -26,8 +26,6 @@ export async function sendTx (krp: KeyringPair, tx: SubmittableExtrinsic) {
                 status.isRetracted
       ) {
         reject(new Error('Invalid transaction.'))
-      } else {
-        // Pass it
       }
 
       if (status.isInBlock) {
@@ -40,11 +38,13 @@ export async function sendTx (krp: KeyringPair, tx: SubmittableExtrinsic) {
             logger.info(
                             `  ↪ 💸 ✅ [tx]: Send transaction(${tx.type}) success.`
             )
-            resolve(true)
           }
         })
-      } else {
-        // Pass it
+        logger.info('Included at block hash', status.asInBlock.toHex())
+
+        resolve(status.asInBlock.toHex())
+      } else if (status.isFinalized) {
+        logger.info('Finalized block hash', status.asFinalized.toHex())
       }
     }).catch(e => {
       reject(e)
@@ -84,6 +84,6 @@ export async function transfer (api: ApiPromise, krp: KeyringPair, amount:string
   const paymentStr = await txPre.paymentInfo(account)
   const feeExpected = (paymentStr.toJSON()).partialFee
   const tx = api.tx.balances.transfer(account, Number(amount) * 1_000_000_000_000 - Number(feeExpected))
-  const txRes = JSON.parse(JSON.stringify((await sendTx(krp, tx))))
-  return JSON.parse(JSON.stringify(txRes))
+  const blockHash = await sendTx(krp, tx)
+  return { blockHash, extrinsicHash: tx.hash.toHex() }
 }
