@@ -1,8 +1,9 @@
 import { u8aToHex } from '@polkadot/util'
 import { hdLedger, mnemonicGenerate } from '@polkadot/util-crypto'
-import { keyring } from '@polkadot/ui-keyring'
+import { Keyring } from '@polkadot/keyring'
 type PairType = 'ecdsa' | 'ed25519' | 'ed25519-ledger' | 'ethereum' | 'sr25519';
 
+const keyring = new Keyring()
 function getSuri (seed: string, derivePath: string, pairType: PairType): string {
   return pairType === 'ed25519-ledger'
     ? u8aToHex(hdLedger(seed, derivePath).secretKey.slice(0, 32))
@@ -12,7 +13,6 @@ function getSuri (seed: string, derivePath: string, pairType: PairType): string 
 }
 
 export function addressFromSeed (seed: string, derivePath = '', pairType:PairType = 'sr25519'): string {
-  keyring.loadAll({})
   return keyring
     .createFromUri(getSuri(seed, derivePath, pairType), {}, pairType === 'ed25519-ledger' ? 'ed25519' : pairType)
     .address

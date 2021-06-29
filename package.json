@@ -7,7 +7,6 @@
     "@crustio/type-definitions": "^0.0.10",
     "@koa/router": "^10.0.0",
     "@polkadot/api": "^4.7.2",
-    "@polkadot/ui-keyring": "^0.82.1",
     "@types/koa-bodyparser": "^4.3.0",
     "bignumber.js": "^9.0.1",
     "koa": "^2.13.1",
