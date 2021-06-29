@@ -2,7 +2,7 @@ import * as Router from 'koa-router'
 import createKeyring from '../services/crust/krp'
 import { getOrderState, placeOrder, transfer } from '../services/crust/order'
 import { api } from '../services/crust/api'
-import { getAccountBalance } from '../services/crust/info'
+import { blockInfo, getAccountBalance } from '../services/crust/info'
 import { addressFromSeed, create } from '../services/crust/account'
 import { successResponse } from '../helpers/response'
 const router = new Router()
@@ -94,4 +94,15 @@ router.get('/account/create', async (ctx) => {
     throw new Error(e)
   }
 })
+router.get('/block/state', async (ctx) => {
+  try {
+    const { blockHash, extrinsicHash } = ctx.query
+    console.log({ blockHash, extrinsicHash })
+    await blockInfo(api, blockHash as string, extrinsicHash as string)
+    successResponse(ctx, { isFinalized: true })
+  } catch (e) {
+    throw new Error(e)
+  }
+})
+
 export default router.routes()
