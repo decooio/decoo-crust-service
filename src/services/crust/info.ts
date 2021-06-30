@@ -11,3 +11,8 @@ export async function getAccountBalance (api: ApiPromise, account: string) {
   const info = JSON.parse(JSON.stringify(infoStr))
   return formatBalance(info.data.free)
 }
+export async function blockInfo (api: ApiPromise, blockHash: string, extrinsicHash: string) {
+  await api.isReadyOrError
+  const signedBlock = await api.rpc.chain.getBlock(blockHash)
+  return signedBlock.block
+}

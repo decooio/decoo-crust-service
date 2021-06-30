@@ -5,5 +5,6 @@ const chainWsUrl = process.env.NODE_ENV === 'production' ? process.env.WS_ENDPOI
 
 export const api = new ApiPromise({
   provider: new WsProvider(chainWsUrl),
+
   typesBundle: typesBundleForPolkadot
 })
