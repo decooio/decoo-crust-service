@@ -18,13 +18,14 @@ router.get('/order/:cid', async (ctx, next) => {
 interface OrderInfo {
   fileCid: string,
   fileSize: number,
-  seeds: string
+  seeds: string,
+  tip: string
 }
 router.post('/order', async (ctx, next) => {
   try {
-    const { fileCid, fileSize, seeds } = ctx.request.body as OrderInfo
+    const { fileCid, fileSize, seeds, tip = 0.00005 } = ctx.request.body as OrderInfo
     const krp = createKeyring(seeds)
-    const res = await placeOrder(api, krp, fileCid, fileSize, 0)
+    const res = await placeOrder(api, krp, fileCid, fileSize, Number(tip))
     if (!res) {
       throw new Error('Order Failed')
     }
