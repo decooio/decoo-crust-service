@@ -46,4 +46,4 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: ghcr.io/decooio/decoo-service:beta, decoo-registry.tencentcloudcr.com/decooio/decoo-service:beta
+        tags: ghcr.io/decooio/decoo-crust-service:beta, decoo-registry.tencentcloudcr.com/decooio/decoo-crust-service:beta
