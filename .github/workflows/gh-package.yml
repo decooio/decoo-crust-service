@@ -20,17 +20,17 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: yarn install
     - run: yarn build
-        
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
-    
+
     - name: Login to Github container registry
       uses: docker/login-action@v1
       with:
         registry: ghcr.io
         username: ${{ github.repository_owner }}
         password: ${{ secrets.DECOO_PAT }}
-        
+
     - name: Build and push
       id: docker_build
       uses: docker/build-push-action@v2
@@ -39,3 +39,20 @@ jobs:
         file: ./Dockerfile
         push: true
         tags: ghcr.io/decooio/decoo-crust-service:latest
+
+    - name: Login to TCR private docker registry
+      uses: docker/login-action@v1
+      with:
+        registry: decoo-registry.tencentcloudcr.com
+        username: ${{ secrets.TCR_USER }}
+        password: ${{ secrets.TCR_PASSWD }}
+
+
+    - name: Build and push
+      id: docker_build
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: ghcr.io/decooio/decoo-crust-service:lts, decoo-registry.tencentcloudcr.com/decooio/decoo-crust-service:lts
