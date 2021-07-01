@@ -31,6 +31,14 @@ jobs:
         username: ${{ github.repository_owner }}
         password: ${{ secrets.DECOO_PAT }}
 
+    - name: Login to TCR private docker registry
+      uses: docker/login-action@v1
+      with:
+        registry: decoo-registry.tencentcloudcr.com
+        username: ${{ secrets.TCR_USER }}
+        password: ${{ secrets.TCR_PASSWD }}
+
+
     - name: Build and push
       id: docker_build
       uses: docker/build-push-action@v2
@@ -38,4 +46,4 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: ghcr.io/decooio/decoo-crust-service:beta
+        tags: ghcr.io/decooio/decoo-service:beta, decoo-registry.tencentcloudcr.com/decooio/decoo-service:beta
