@@ -1,6 +1,6 @@
 import * as Router from 'koa-router'
 import createKeyring from '../services/crust/krp'
-import { getOrderState, placeOrder, transfer } from '../services/crust/order'
+import { getOrderState, placeOrder, transfer, transferBatch } from '../services/crust/order'
 import { api } from '../services/crust/api'
 import { blockInfo, getAccountBalance } from '../services/crust/info'
 import { addressFromSeed, create } from '../services/crust/account'
@@ -105,5 +105,14 @@ router.get('/block/state', async (ctx) => {
     throw new Error(e)
   }
 })
-
+router.post('/account/transfer/batch', async (ctx) => {
+  try {
+    const { seeds, records } = ctx.request.body
+    const krp = createKeyring(seeds)
+    const hash = await transferBatch(api, krp, records)
+    successResponse(ctx, { tx: hash })
+  } catch (e) {
+    throw new Error(e)
+  }
+})
 export default router.routes()
