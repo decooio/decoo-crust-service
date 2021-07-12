@@ -52,6 +52,44 @@ export async function sendTx (krp: KeyringPair, tx: SubmittableExtrinsic) {
   })
 }
 
+const batchSendTxs = (api: ApiPromise, krp: KeyringPair, txs: any) => {
+  return new Promise((resolve, reject) => {
+    api.tx.utility.batchAll(txs).signAndSend(krp, ({ events = [], status }) => {
+      logger.info(
+        `  ↪ 💸 [tx]: Transaction status: ${status.type}`
+      )
+
+      if (
+        status.isInvalid ||
+        status.isDropped ||
+        status.isUsurped ||
+        status.isRetracted
+      ) {
+        reject(new Error('Invalid transaction.'))
+      }
+
+      if (status.isInBlock) {
+        events.forEach(({ event: { method, section } }) => {
+          if (section === 'system' && method === 'ExtrinsicFailed') {
+            // Error with no detail, just return error
+            logger.info('  ↪ 💸 ❌ [tx]: Send transaction failed.')
+            reject(new Error('Send transaction failed.'))
+          } else if (method === 'ExtrinsicSuccess') {
+            logger.info(
+              `  ↪ 💸 ✅ [tx]: Send transaction(${api.tx.type}) success.`
+            )
+          }
+        })
+        logger.info('Included at block hash', status.asInBlock.toHex())
+
+        resolve(status.asInBlock.toHex())
+      } else if (status.isFinalized) {
+        logger.info('Finalized block hash', status.asFinalized.toHex())
+      }
+    })
+  })
+}
+
 interface IFileInfo {
   'file_size': number,
   'expired_on': number,
@@ -86,4 +124,12 @@ export async function transfer (api: ApiPromise, krp: KeyringPair, amount:string
   const tx = api.tx.balances.transfer(account, Number(amount) * 1_000_000_000_000 - Number(feeExpected))
   const blockHash = await sendTx(krp, tx)
   return { blockHash, extrinsicHash: tx.hash.toHex() }
+}
+interface IRecord {
+  address: string,
+  amount: string
+}
+export async function transferBatch (api: ApiPromise, krp: KeyringPair, records: IRecord[]) {
+  const txs = records.map((r) => api.tx.balances.transfer(r.address, (Number(r.amount) * 1_000_000_000_000).toString()))
+  return batchSendTxs(api, krp, txs)
 }
