@@ -2,8 +2,10 @@ import { KeyringPair } from '@polkadot/keyring/types'
 import { ApiPromise } from '@polkadot/api'
 import { SubmittableExtrinsic } from '@polkadot/api/promise/types'
 import { logger } from '../../logger'
+import { fromDecimal } from '../../helpers/utils'
+import BigNumber from 'bignumber.js'
 
-export async function placeOrder (api: ApiPromise, krp: KeyringPair, fileCID: string, fileSize: number, tip: number) {
+export async function placeOrder (api: ApiPromise, krp: KeyringPair, fileCID: string, fileSize: number, tip: string) {
   // Determine whether to connect to the chain
   await api.isReadyOrError
   // Generate transaction
@@ -117,11 +119,12 @@ export async function getOrderState (api: ApiPromise, cid: string) {
 export async function transfer (api: ApiPromise, krp: KeyringPair, amount:string, account:string) {
   await api.isReadyOrError
   // Generate transaction
-  const txPre = api.tx.balances.transfer(account, Number(amount) * 1_000_000_000_000)
+  const amountBN = fromDecimal(amount)
+  const txPre = api.tx.balances.transfer(account, amountBN.toFixed(0))
 
   const paymentStr = await txPre.paymentInfo(account)
-  const feeExpected = (paymentStr.toJSON()).partialFee
-  const tx = api.tx.balances.transfer(account, Number(amount) * 1_000_000_000_000 - Number(feeExpected))
+  const feeExpected = (paymentStr.toJSON()).partialFee as string
+  const tx = api.tx.balances.transfer(account, amountBN.minus(new BigNumber(feeExpected)).toFixed(0))
   const blockHash = await sendTx(krp, tx)
   return { blockHash, extrinsicHash: tx.hash.toHex() }
 }
@@ -130,6 +133,6 @@ interface IRecord {
   amount: string
 }
 export async function transferBatch (api: ApiPromise, krp: KeyringPair, records: IRecord[]) {
-  const txs = records.map((r) => api.tx.balances.transfer(r.address, (Number(r.amount) * 1_000_000_000_000).toString()))
+  const txs = records.map((r) => api.tx.balances.transfer(r.address, fromDecimal(r.amount).toFixed(0)))
   return batchSendTxs(api, krp, txs)
 }
