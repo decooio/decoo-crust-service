@@ -5,6 +5,7 @@ import { api } from '../services/crust/api'
 import { blockInfo, getAccountBalance } from '../services/crust/info'
 import { addressFromSeed, create } from '../services/crust/account'
 import { successResponse } from '../helpers/response'
+import { fromDecimal } from '../helpers/utils'
 const router = new Router()
 router.get('/order/:cid', async (ctx, next) => {
   try {
@@ -25,7 +26,7 @@ router.post('/order', async (ctx, next) => {
   try {
     const { fileCid, fileSize, seeds, tip = 0.00005 } = ctx.request.body as OrderInfo
     const krp = createKeyring(seeds)
-    const res = await placeOrder(api, krp, fileCid, fileSize, Number(tip))
+    const res = await placeOrder(api, krp, fileCid, fileSize, fromDecimal(tip).toFixed(0))
     if (!res) {
       throw new Error('Order Failed')
     }
