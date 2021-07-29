@@ -13,6 +13,19 @@ export async function placeOrder (api: ApiPromise, krp: KeyringPair, fileCID: st
   const txRes = JSON.parse(JSON.stringify((await sendTx(krp, pso))))
   return JSON.parse(JSON.stringify(txRes))
 }
+export async function orderPrice (api: ApiPromise, fileSize: string) {
+  // Determine whether to connect to the chain
+  await api.isReadyOrError
+  // Generate transaction
+  const basePrice = await api.query.market.fileBaseFee()
+  const _filePrice = await api.query.market.filePrice()
+  const filePrice = new BigNumber(_filePrice.toString()).multipliedBy(new BigNumber(fileSize))
+  const totalPrice = filePrice.plus(new BigNumber(basePrice.toString()))
+  return {
+    basePrice: basePrice.toString(),
+    totalPrice: totalPrice.toString()
+  }
+}
 
 export async function sendTx (krp: KeyringPair, tx: SubmittableExtrinsic) {
   return new Promise((resolve, reject) => {

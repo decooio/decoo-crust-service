@@ -1,12 +1,24 @@
 import * as Router from 'koa-router'
 import createKeyring from '../services/crust/krp'
-import { getOrderState, placeOrder, transfer, transferBatch } from '../services/crust/order'
+import { getOrderState, orderPrice, placeOrder, transfer, transferBatch } from '../services/crust/order'
 import { api } from '../services/crust/api'
 import { blockInfo, getAccountBalance } from '../services/crust/info'
 import { addressFromSeed, create } from '../services/crust/account'
 import { successResponse } from '../helpers/response'
 import { fromDecimal } from '../helpers/utils'
 const router = new Router()
+router.get('/order/price', async (ctx, next) => {
+  try {
+    const { filesize } = ctx.query as any
+    const res = await orderPrice(api, filesize)
+    if (!res) {
+      throw new Error('Order Failed')
+    }
+    successResponse(ctx, res)
+  } catch (e) {
+    throw new Error(e)
+  }
+})
 router.get('/order/:cid', async (ctx, next) => {
   try {
     const cid = ctx.params.cid
