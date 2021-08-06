@@ -10,7 +10,7 @@ const router = new Router()
 router.get('/order/price', async (ctx, next) => {
   try {
     const { filesize } = ctx.query as any
-    const res = await orderPrice(api, filesize)
+    const res = await orderPrice(api, 'cTHcqLMxFCFkSBap4fW68qGr1mHktcvoARFqdCtygKpdWB5wY', filesize)
     if (!res) {
       throw new Error('Order Failed')
     }

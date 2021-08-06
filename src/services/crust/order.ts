@@ -2,28 +2,35 @@ import { KeyringPair } from '@polkadot/keyring/types'
 import { ApiPromise } from '@polkadot/api'
 import { SubmittableExtrinsic } from '@polkadot/api/promise/types'
 import { logger } from '../../logger'
-import { fromDecimal } from '../../helpers/utils'
+import { fromDecimal, parserStrToObj } from '../../helpers/utils'
 import BigNumber from 'bignumber.js'
 
 export async function placeOrder (api: ApiPromise, krp: KeyringPair, fileCID: string, fileSize: number, tip: string) {
   // Determine whether to connect to the chain
   await api.isReadyOrError
   // Generate transaction
-  const pso = api.tx.market.placeStorageOrder(fileCID, fileSize, tip)
+  const pso = api.tx.market.placeStorageOrder(fileCID, fileSize, tip, 0)
   const txRes = JSON.parse(JSON.stringify((await sendTx(krp, pso))))
   return JSON.parse(JSON.stringify(txRes))
 }
-export async function orderPrice (api: ApiPromise, fileSize: string) {
+export async function orderPrice (api: ApiPromise, account: string, fileSize: string) {
   // Determine whether to connect to the chain
   await api.isReadyOrError
   // Generate transaction
   const basePrice = await api.query.market.fileBaseFee()
-  const _filePrice = await api.query.market.filePrice()
-  const filePrice = new BigNumber(_filePrice.toString()).multipliedBy(new BigNumber(fileSize))
-  const totalPrice = filePrice.plus(new BigNumber(basePrice.toString()))
+  const fileByteFee = await api.query.market.fileByteFee()
+  const fileKeysCountFee = await api.query.market.fileKeysCountFee() as any
+  const currentBenefits = await api.query.benefits.currentBenefits()
+  const marketBenefits = await api.query.benefits.marketBenefits(account)
+  const filePrice = new BigNumber(fileByteFee.toString()).multipliedBy(new BigNumber(fileSize)) || new BigNumber(0)
+  const total_market_active_funds = currentBenefits ? parserStrToObj(currentBenefits).total_market_active_funds : 0
+  const active_funds = marketBenefits ? parserStrToObj(marketBenefits).active_funds : 0
+  const benefits = 1 - Math.min(active_funds / (total_market_active_funds || 1), 0.1)
+  const _filePrice = filePrice?.multipliedBy(new BigNumber(fileSize)).dividedBy(1024 * 1024).plus(new BigNumber(fileKeysCountFee)).plus(new BigNumber(benefits))
+  const totalPrice = _filePrice.plus(new BigNumber(basePrice.toString()))
   return {
     basePrice: basePrice.toString(),
-    totalPrice: totalPrice.toString()
+    totalPrice: totalPrice.toFixed(0)
   }
 }
 
