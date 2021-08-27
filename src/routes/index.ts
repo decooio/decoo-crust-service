@@ -10,6 +10,7 @@ const router = new Router()
 router.get('/order/price', async (ctx, next) => {
   try {
     const { filesize } = ctx.query as any
+    console.log(filesize)
     const res = await orderPrice(api, 'cTHcqLMxFCFkSBap4fW68qGr1mHktcvoARFqdCtygKpdWB5wY', filesize)
     if (!res) {
       throw new Error('Order Failed')
@@ -32,13 +33,14 @@ interface OrderInfo {
   fileCid: string,
   fileSize: number,
   seeds: string,
-  tip: string
+  tip: string,
+  memo?: string
 }
 router.post('/order', async (ctx, next) => {
   try {
-    const { fileCid, fileSize, seeds, tip = 0.00005 } = ctx.request.body as OrderInfo
+    const { fileCid, fileSize, seeds, memo = undefined, tip = 0.00005 } = ctx.request.body as OrderInfo
     const krp = createKeyring(seeds)
-    const res = await placeOrder(api, krp, fileCid, fileSize, fromDecimal(tip).toFixed(0))
+    const res = await placeOrder(api, krp, fileCid, fileSize, memo, fromDecimal(tip).toFixed(0))
     if (!res) {
       throw new Error('Order Failed')
     }

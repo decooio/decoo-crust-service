@@ -13,6 +13,7 @@ function getSuri (seed: string, derivePath: string, pairType: PairType): string 
 }
 
 export function addressFromSeed (seed: string, derivePath = '', pairType:PairType = 'sr25519'): string {
+  keyring.setSS58Format(66)
   return keyring
     .createFromUri(getSuri(seed, derivePath, pairType), {}, pairType === 'ed25519-ledger' ? 'ed25519' : pairType)
     .address
