@@ -3,7 +3,7 @@ name: Build Github Package
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [ "release-maxwell"]
 
 jobs:
   build:
@@ -46,4 +46,5 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: ghcr.io/decooio/decoo-crust-service:latest, decoo-registry.tencentcloudcr.com/decooio/decoo-crust-service:latest
+        tags: ghcr.io/decooio/decoo-crust-service-maxwell:latest, decoo-registry.tencentcloudcr
+        .com/decooio/decoo-crust-service-maxwell:latest
