@@ -22,8 +22,12 @@ router.get('/order/price', async (ctx, next) => {
 router.get('/order/:cid', async (ctx, next) => {
   try {
     const cid = ctx.params.cid
-    const { meaningfulData } = await getOrderState(api, cid)
-    successResponse(ctx, { meaningfulData })
+    const res = await getOrderState(api, cid)
+    if (!res) {
+      successResponse(ctx, { meaningfulData: null }, 2)
+    } else {
+      successResponse(ctx, { meaningfulData: res.meaningfulData })
+    }
   } catch (e) {
     throw new Error(e)
   }

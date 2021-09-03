@@ -8,6 +8,6 @@ export const response = (ctx: Context, code: number, data?: any, msg = 'success'
   }
 }
 
-export const successResponse = (ctx: Context, data?: any) => {
-  response(ctx, 1, data, null)
+export const successResponse = (ctx: Context, data?: any, code = 1) => {
+  response(ctx, code, data, null)
 }
