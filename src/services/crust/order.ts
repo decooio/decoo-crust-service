@@ -127,11 +127,15 @@ export async function getOrderState (api: ApiPromise, cid: string) {
   await api.isReadyOrError
   const res = await api.query.market.files(cid)
   const data = res ? JSON.parse(JSON.stringify(res)) : null
-  if (data && Array.isArray(data) && data.length > 0) {
-    const { replicas, ...meaningfulData } = (data as IFileInfo[])[0]
-    return {
-      meaningfulData,
-      replicas
+  if (data) {
+    try {
+      const { replicas, ...meaningfulData } = (data as IFileInfo)
+      return {
+        meaningfulData,
+        replicas
+      }
+    } catch (e) {
+      return null
     }
   }
   return null
