@@ -43,7 +43,7 @@ router.post('/order', async (ctx, next) => {
   try {
     const { fileCid, fileSize, seeds, memo = undefined, tip = 0.00005 } = ctx.request.body as OrderInfo
     const krp = createKeyring(seeds)
-    const res = await placeOrder(api, krp, fileCid, fileSize, memo, fromDecimal(tip).toFixed(0))
+    const res = await placeOrder(api, krp, fileCid, fileSize, fromDecimal(tip).toFixed(0), memo)
     if (!res) {
       throw new Error('Order Failed')
     }
