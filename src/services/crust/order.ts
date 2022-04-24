@@ -5,7 +5,7 @@ import { logger } from '../../logger'
 import { fromDecimal, parserStrToObj } from '../../helpers/utils'
 import BigNumber from 'bignumber.js'
 
-export async function placeOrder (api: ApiPromise, krp: KeyringPair, fileCID: string, fileSize: number, tip: string, memo: string) {
+export async function placeOrder(api: ApiPromise, krp: KeyringPair, fileCID: string, fileSize: number, tip: string, memo: string) {
   // Determine whether to connect to the chain
   await api.isReadyOrError
   // Generate transaction
@@ -14,7 +14,7 @@ export async function placeOrder (api: ApiPromise, krp: KeyringPair, fileCID: st
   const txRes = JSON.parse(JSON.stringify((await sendTx(krp, pso))))
   return JSON.parse(JSON.stringify(txRes))
 }
-export async function orderPrice (api: ApiPromise, account: string, fileSize: string) {
+export async function orderPrice(api: ApiPromise, account: string, fileSize: string) {
   // Determine whether to connect to the chain
   await api.isReadyOrError
   // basePrice = (basePrice + byteFee * size + key_count_fee) * benefit
@@ -35,18 +35,18 @@ export async function orderPrice (api: ApiPromise, account: string, fileSize: st
   }
 }
 
-export async function sendTx (krp: KeyringPair, tx: SubmittableExtrinsic) {
+export async function sendTx(krp: KeyringPair, tx: SubmittableExtrinsic) {
   return new Promise((resolve, reject) => {
     tx.signAndSend(krp, ({ events = [], status }) => {
       logger.info(
-                `  ↪ 💸 [tx]: Transaction status: ${status.type}, nonce: ${tx.nonce}`
+        `  ↪ 💸 [tx]: Transaction status: ${status.type}, nonce: ${tx.nonce}`
       )
 
       if (
         status.isInvalid ||
-                status.isDropped ||
-                status.isUsurped ||
-                status.isRetracted
+        status.isDropped ||
+        status.isUsurped ||
+        status.isRetracted
       ) {
         reject(new Error('Invalid transaction.'))
       }
@@ -59,7 +59,7 @@ export async function sendTx (krp: KeyringPair, tx: SubmittableExtrinsic) {
             resolve(false)
           } else if (method === 'ExtrinsicSuccess') {
             logger.info(
-                            `  ↪ 💸 ✅ [tx]: Send transaction(${tx.type}) success.`
+              `  ↪ 💸 ✅ [tx]: Send transaction(${tx.type}) success.`
             )
           }
         })
@@ -120,12 +120,13 @@ interface IFileInfo {
   amount: number,
   prepaid: number,
   'reported_replica_count': number,
-  replicas: [any]
+  'remaining_paid_count': number,
+  replicas: any
 }
 
-export async function getOrderState (api: ApiPromise, cid: string) {
+export async function getOrderState(api: ApiPromise, cid: string) {
   await api.isReadyOrError
-  const res = await api.query.market.files(cid)
+  const res = await api.query.market.filesV2(cid)
   const data = res ? JSON.parse(JSON.stringify(res)) : null
   if (data) {
     try {
@@ -141,7 +142,7 @@ export async function getOrderState (api: ApiPromise, cid: string) {
   return null
 }
 
-export async function transfer (api: ApiPromise, krp: KeyringPair, amount:string, account:string) {
+export async function transfer(api: ApiPromise, krp: KeyringPair, amount: string, account: string) {
   await api.isReadyOrError
   // Generate transaction
   const amountBN = fromDecimal(amount)
@@ -157,7 +158,7 @@ interface IRecord {
   address: string,
   amount: string
 }
-export async function transferBatch (api: ApiPromise, krp: KeyringPair, records: IRecord[]) {
+export async function transferBatch(api: ApiPromise, krp: KeyringPair, records: IRecord[]) {
   const txs = records.map((r) => api.tx.balances.transfer(r.address, fromDecimal(r.amount).toFixed(0)))
   return batchSendTxs(api, krp, txs)
 }
